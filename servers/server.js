@@ -1,10 +1,12 @@
-require('dotenv').config({ path: '.env' });
+const cors = require('cors');
 const express = require('express');
 const router = express.Router();
 const app = express();
 const port = 8000;
 
 const { run } = require('./db/connexionDb'); 
+
+app.use(cors());
 
 
 router.get('/data', (req, res) => {
