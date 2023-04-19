@@ -1,4 +1,4 @@
-# Mon super projet
+# Chest-DB
 
 ## Prérequis
 
