@@ -1,18 +1,24 @@
-import { User } from '../db/class/User';
-import express, { Router, Request, Response } from 'express';
+import { User } from "../db/class/User";
+import express, { Router, Request, Response } from "express";
+import mongoose from "mongoose";
 
 const router: Router = express.Router();
 
-router.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Bonjour le monde!' });
+router.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Bonjour le monde!" });
 });
 
-router.post('/adduser', (req, res) => {
+router.post("/adduser", (req, res) => {
+  console.log(req.body);
   const { nom, email, motDePasse } = req.body;
-  const newUser = new User({ nom, email, motDePasse }); // création d'une instance de User
-  newUser.save()
-    .then(() => res.json({ message: 'Utilisateur créé avec succès.' }))
-    .catch(error => res.status(400).json({ error }));
+  console.log(nom, email, motDePasse);
+  const user = new User({
+    nom: req.body.nom,
+    email: req.body.email,
+    motDePasse: req.body.motDePasse,
+  });
+  console.log(user);
+  user.save({ w: "majority", wtimeout: 30000 });
 });
 
 export default router;

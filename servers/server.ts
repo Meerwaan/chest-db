@@ -1,24 +1,25 @@
-const cors = require('cors');
-const express = require('express');
-const router = express.Router();
+const cors = require("cors");
+const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
 const port = 8000;
 
-const { run } = require('./db/connexionDb'); 
-
+const { run } = require("./db/connexionDb");
+import mongoose from "mongoose";
+import router from "./routes/data";
 app.use(cors());
-
-
-router.get('/data', (req, res) => {
-    res.json({ message: 'Hello World!' });
-});
+app.use(bodyParser.json());
 
 app.use(router);
 
-run().then(() => {
+run()
+  .then(() => {
     app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+      console.log(`Server is running on port ${port}`);
     });
-}).catch((error) => {
-    console.error(`An error occurred while connecting to the database: ${error}`);
-});
+  })
+  .catch((error) => {
+    console.error(
+      `An error occurred while connecting to the database: ${error}`
+    );
+  });
