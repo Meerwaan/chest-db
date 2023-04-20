@@ -5,6 +5,7 @@ import { MongoClient, Collection } from "mongodb";
 import Config from "dotenv";
 import bcrypt from "bcrypt";
 import User from "./Model/user";
+import nodemailer from "nodemailer";
 
 const app = express();
 const port = 3000;
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
 app.post("/adduser", async (req, res) => {
   try {
     const user: User = {
+      id: req.body.id,
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
@@ -58,6 +60,7 @@ app.post("/login", async (req, res) => {
 
   try {
     const user: User = {
+      id: req.body.id,
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
@@ -81,6 +84,91 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(401).send("Authentification échouée.");
+  }
+});
+
+// Définition de la route
+app.post("/forgotPassword", async (req, res) => {
+  try {
+    // Extraire les données de la requête
+    const to = req.body.email;
+    console.log(to);
+    const login = await users.findOne({ email: to });
+    if (!login) {
+      throw new Error("L'utilisateur n'existe pas");
+    }
+    console.log(login);
+
+    // Vérifier que les données requises sont fournies
+    if (!to) {
+      throw new Error("Tous les champs sont requis.");
+    }
+
+    let testAccount = await nodemailer.createTestAccount();
+    // Créer un transporteur SMTP pour Nodemailer
+    let transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: testAccount.user, // generated ethereal user
+        pass: testAccount.pass, // generated ethereal password
+      },
+    });
+
+    // Définir le contenu du mail
+    let info = await transporter.sendMail({
+      from: testAccount, // sender address
+      to: "fayssalmechmeche.pro@gmail.com", // list of receivers
+      subject: "Réinialisation du mot de passe", // Subject line
+      text: "Réinialisation du mot de passe", // plain text body
+      html: `<a href='http://localhost:3001/password/${to}'>Réinitialisation du mot de passe</a>`, // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+    // Preview only available when sending through an Ethereal account
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.post("/resetPassword", async (req, res) => {
+  try {
+    // Extraire les données de la requête
+    const email = req.body.email;
+    console.log(email);
+    const password = req.body.password;
+
+    // Vérifier que les données requises sont fournies
+    if (!password) {
+      throw new Error("Tous les champs sont requis.");
+    }
+
+    // Rechercher l'utilisateur par ID
+    const user = await users.findOne({ email: email });
+
+    // Vérifier si l'utilisateur existe
+    if (!user) {
+      throw new Error("L'utilisateur n'existe pas.");
+    }
+
+    // Mettre à jour le mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await users.updateOne(
+      { email: email },
+      { $set: { motDePasse: hashedPassword } }
+    );
+    console.log(newUser);
+
+    // Envoyer la réponse
+    res.status(200).send("Mot de passe mis à jour.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
   }
 });
 
