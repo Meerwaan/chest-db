@@ -65,16 +65,20 @@ app.post("/login", async (req, res) => {
       email: req.body.email,
       motDePasse: req.body.motDePasse,
     };
-    // Rechercher l'utilisateur par email
-    const login = await users.findOne({ email: user.email });
 
+    console.log(req.body.email);
+    console.log(req.body.motDePasse);
+    // Rechercher l'utilisateur par email
+    const login = await users.findOne({ email: req.body.email });
+
+    console.log(login);
     // Vérifier si l'utilisateur existe
     if (!login) {
       throw new Error("L'utilisateur n'existe pas");
     }
 
     // Vérifier le mot de passe
-    const match = await bcrypt.compare(user.email, login.motDePasse);
+    const match = await bcrypt.compare(req.body.motDePasse, login.motDePasse);
     if (!match) {
       throw new Error("Email ou mot de passe incorrect.");
     }
