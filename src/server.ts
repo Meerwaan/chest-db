@@ -39,6 +39,7 @@ app.post("/adduser", async (req, res) => {
       email: req.body.email,
       motDePasse: req.body.motDePasse,
       friends: [],
+      games: [],
     };
     const existingUser = await users.findOne({ email: user.email });
     if (existingUser) {
@@ -64,6 +65,7 @@ app.post("/login", async (req, res) => {
       email: req.body.email,
       motDePasse: req.body.motDePasse,
       friends: [],
+      games: []
     };
 
     console.log(req.body.email);
@@ -208,16 +210,14 @@ app.post("/addfriend", async (req, res) => {
   }
 });
 
-app.get("/friends" ,async (req , res)=>{
+app.get("/friends", async (req, res) => {
   try {
     const user = await users.findOne({ nom: req.query.nom });
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
     }
     res.json(user.friends);
-
-  }
-  catch (err) {
+  } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
   }
@@ -250,6 +250,53 @@ app.delete("/delfriends", async (req, res) => {
     res.status(500).send("Erreur serveur.");
   }
 });
+
+app.post("/addgame", async (req, res) => {
+  try {
+    const nom = req.body.nom;
+    const gameName = req.body.gameName;
+    const gamePrice = req.body.gamePrice;
+    console.log(nom);
+    console.log(gameName);
+    console.log(gamePrice);
+
+    const user = await users.findOne({ nom: nom });
+
+    if (!user) {
+      throw new Error("L'utilisateur n'existe pas.");
+    }
+    console.log(user._id);
+
+    const newGame = await users.updateOne(
+      { nom: nom },
+      { $push: { games: { name: gameName, price: gamePrice} } }
+    );
+
+    if (!newGame) {
+      throw new Error("La partie n'a pas été ajoutée.");
+    }
+    console.log(newGame);
+    res.status(200).send("Partie ajoutée.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.get("/games", async (req, res) => {
+  try {
+    const nom = req.query.nom;
+    const userWithGames = await users.findOne({ nom: nom, games: { $exists: true } });
+    const games = userWithGames ? userWithGames.games : [];
+    res.json(games);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+
+
 
 
 
