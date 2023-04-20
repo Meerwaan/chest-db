@@ -211,7 +211,6 @@ app.post("/addfriend", async (req, res) => {
 app.get("/friends" ,async (req , res)=>{
   try {
     const user = await users.findOne({ nom: req.query.nom });
-    console.log(req.query.nom)
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
     }
@@ -223,6 +222,36 @@ app.get("/friends" ,async (req , res)=>{
     res.status(500).send("Erreur serveur.");
   }
 });
+
+app.delete("/delfriends", async (req, res) => {
+  try {
+    const proprietaire = req.query.proprietaire;
+    const nom = req.query.nom;
+    const user = await users.findOne({ nom: proprietaire });
+    console.log(nom);
+    console.log(proprietaire);
+
+    if (!user) {
+      throw new Error("L'utilisateur n'existe pas.");
+    }
+
+    const updatedUser = await users.updateOne(
+      { nom: proprietaire },
+      { $pull: { friends: nom } }
+    );
+
+    if (!updatedUser) {
+      throw new Error("L'ami n'a pas pu être supprimé.");
+    }
+
+    res.status(200).send("Ami supprimé.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
