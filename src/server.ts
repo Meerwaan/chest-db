@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { MongoClient, Collection } from "mongodb";
+import { MongoClient, Collection, ObjectId } from "mongodb";
 import Config from "dotenv";
 import bcrypt from "bcrypt";
 import User from "./Model/user";
@@ -178,22 +178,25 @@ app.post("/resetPassword", async (req, res) => {
 
 app.post("/addfriend", async (req, res) => {
   try {
+    const proprietaire = req.body.proprietaire;
     const nom = req.body.nom;
     const id = req.body.id;
     console.log(id);
     console.log(nom);
+    console.log(proprietaire);
 
     const user = await users.findOne({ nom: nom });
 
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
     }
-    console.log( user._id)
+    console.log(user._id);
+
     const newFriend = await users.updateOne(
-      { _id: id },
-      { $push: { friends: user._id } }
-      
+      { nom: proprietaire },
+      { $push: { friends: new ObjectId(user._id) } }
     );
+
     if (!newFriend) {
       throw new Error("pas d'amis.");
     }
