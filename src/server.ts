@@ -194,7 +194,7 @@ app.post("/addfriend", async (req, res) => {
 
     const newFriend = await users.updateOne(
       { nom: proprietaire },
-      { $push: { friends: new ObjectId(user._id) } }
+      { $push: { friends: user.nom } }
     );
 
     if (!newFriend) {
@@ -203,6 +203,22 @@ app.post("/addfriend", async (req, res) => {
     console.log(newFriend);
     res.status(200).send("Ami ajouté.");
   } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.get("/friends" ,async (req , res)=>{
+  try {
+    const user = await users.findOne({ nom: req.query.nom });
+    console.log(req.query.nom)
+    if (!user) {
+      throw new Error("L'utilisateur n'existe pas.");
+    }
+    res.json(user.friends);
+
+  }
+  catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
   }

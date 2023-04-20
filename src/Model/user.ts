@@ -4,7 +4,7 @@ interface User {
   nom: string;
   email: string;
   motDePasse: string;
-  friends: ObjectId[];
+  friends: string[];
 }
 
 export default User;
