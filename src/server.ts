@@ -53,6 +53,37 @@ app.post("/adduser", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res) => {
+  // Extraire les données de la requête
+
+  try {
+    const user: User = {
+      nom: req.body.nom,
+      email: req.body.email,
+      motDePasse: req.body.motDePasse,
+    };
+    // Rechercher l'utilisateur par email
+    const login = await users.findOne({ email: user.email });
+
+    // Vérifier si l'utilisateur existe
+    if (!login) {
+      throw new Error("L'utilisateur n'existe pas");
+    }
+
+    // Vérifier le mot de passe
+    const match = await bcrypt.compare(user.email, login.motDePasse);
+    if (!match) {
+      throw new Error("Email ou mot de passe incorrect.");
+    }
+
+    // Envoyer la réponse
+    res.status(200).send(login);
+  } catch (err) {
+    console.log(err);
+    res.status(401).send("Authentification échouée.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
 });
