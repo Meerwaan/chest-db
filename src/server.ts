@@ -35,7 +35,6 @@ app.get("/", (req, res) => {
 app.post("/adduser", async (req, res) => {
   try {
     const user: User = {
-      id: req.body.id,
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
@@ -61,7 +60,6 @@ app.post("/login", async (req, res) => {
 
   try {
     const user: User = {
-      id: req.body.id,
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
@@ -182,6 +180,7 @@ app.post("/addfriend", async (req, res) => {
   try {
     const nom = req.body.nom;
     const id = req.body.id;
+    console.log(id);
     console.log(nom);
 
     const user = await users.findOne({ nom: nom });
@@ -189,11 +188,15 @@ app.post("/addfriend", async (req, res) => {
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
     }
-
+    console.log( user._id)
     const newFriend = await users.updateOne(
-      { id: id },
-      { $push: { friends: user.id } }
+      { _id: id },
+      { $push: { friends: user._id } }
+      
     );
+    if (!newFriend) {
+      throw new Error("pas d'amis.");
+    }
     console.log(newFriend);
     res.status(200).send("Ami ajouté.");
   } catch (err) {
