@@ -39,6 +39,7 @@ app.post("/adduser", async (req, res) => {
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
+      friends: [],
     };
     const existingUser = await users.findOne({ email: user.email });
     if (existingUser) {
@@ -64,6 +65,7 @@ app.post("/login", async (req, res) => {
       nom: req.body.nom,
       email: req.body.email,
       motDePasse: req.body.motDePasse,
+      friends: [],
     };
 
     console.log(req.body.email);
@@ -170,6 +172,30 @@ app.post("/resetPassword", async (req, res) => {
 
     // Envoyer la réponse
     res.status(200).send("Mot de passe mis à jour.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.post("/addfriend", async (req, res) => {
+  try {
+    const nom = req.body.nom;
+    const id = req.body.id;
+    console.log(nom);
+
+    const user = await users.findOne({ nom: nom });
+
+    if (!user) {
+      throw new Error("L'utilisateur n'existe pas.");
+    }
+
+    const newFriend = await users.updateOne(
+      { id: id },
+      { $push: { friends: user.id } }
+    );
+    console.log(newFriend);
+    res.status(200).send("Ami ajouté.");
   } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
