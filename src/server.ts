@@ -13,7 +13,7 @@ const uri =
   "mongodb+srv://fayssal:fayssal@chest-game.ej0g82h.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 let users: Collection<User>;
-
+let games
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -22,6 +22,7 @@ try {
   console.log("Connected to MongoDB.");
   const db = client.db("Chest-Game");
   users = db.collection<User>("users");
+  games = db.collection("game");
 
   // Écrivez le code de votre application ici
 } catch (err) {
@@ -260,16 +261,13 @@ app.post("/addgame", async (req, res) => {
     console.log(gameName);
     console.log(gamePrice);
 
-    const user = await users.findOne({ nom: nom });
 
-    if (!user) {
-      throw new Error("L'utilisateur n'existe pas.");
+    const newGame = await games.insertOne({
+      gameName: gameName,
+      price: gamePrice,
+      players: [nom],
+      owner: nom
     }
-    console.log(user._id);
-
-    const newGame = await users.updateOne(
-      { nom: nom },
-      { $push: { games: { name: gameName, price: gamePrice} } }
     );
 
     if (!newGame) {
@@ -289,6 +287,17 @@ app.get("/games", async (req, res) => {
     const userWithGames = await users.findOne({ nom: nom, games: { $exists: true } });
     const games = userWithGames ? userWithGames.games : [];
     res.json(games);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.get("/game", async (req, res) => {
+  try {
+    const result = await games.find()
+    res.json(result);
+    console.log(result)
   } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
