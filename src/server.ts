@@ -20,14 +20,14 @@ app.use(cors());
 
 try {
   client.connect();
-  console.log("Connected to MongoDB.");
+  //console.log("Connected to MongoDB.");
   const db = client.db("Chest-Game");
   users = db.collection<User>("users");
   games = db.collection("game");
 
   // Écrivez le code de votre application ici
 } catch (err) {
-  console.log(err);
+  //console.log(err);
   process.exit(1);
 }
 
@@ -54,7 +54,7 @@ app.post("/adduser", async (req, res) => {
     const result = await users.insertOne(user);
     res.status(201).json(`Utilisateur ajouté avec l'ID ${result.insertedId}`);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur");
   }
 });
@@ -63,12 +63,12 @@ app.post("/login", async (req, res) => {
   // Extraire les données de la requête
 
   try {
-    console.log(req.body.email);
-    console.log(req.body.motDePasse);
+    //console.log(req.body.email);
+    //console.log(req.body.motDePasse);
     // Rechercher l'utilisateur par email
     const login = await users.findOne({ email: req.body.email });
 
-    console.log(login);
+    //console.log(login);
     // Vérifier si l'utilisateur existe
     if (!login) {
       throw new Error("L'utilisateur n'existe pas");
@@ -83,7 +83,7 @@ app.post("/login", async (req, res) => {
     // Envoyer la réponse
     res.status(200).send(login);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(401).send("Authentification échouée.");
   }
 });
@@ -93,12 +93,12 @@ app.post("/forgotPassword", async (req, res) => {
   try {
     // Extraire les données de la requête
     const to = req.body.email;
-    console.log(to);
+    //console.log(to);
     const login = await users.findOne({ email: to });
     if (!login) {
       throw new Error("L'utilisateur n'existe pas");
     }
-    console.log(login);
+    //console.log(login);
 
     // Vérifier que les données requises sont fournies
     if (!to) {
@@ -126,17 +126,17 @@ app.post("/forgotPassword", async (req, res) => {
       html: `<a href='http://localhost:3001/password/${to}'>Réinitialisation du mot de passe</a>`, // html body
     });
 
-    console.log("Message sent: %s", info.messageId);
+    //console.log("Message sent: %s", info.messageId);
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
     // Preview only available when sending through an Ethereal account
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    //console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     let answer = nodemailer.getTestMessageUrl(info);
-    console.log(answer);
+    //console.log(answer);
 
     res.json(answer);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -145,7 +145,7 @@ app.post("/resetPassword", async (req, res) => {
   try {
     // Extraire les données de la requête
     const email = req.body.email;
-    console.log(email);
+    //console.log(email);
     const password = req.body.password;
 
     // Vérifier que les données requises sont fournies
@@ -167,12 +167,12 @@ app.post("/resetPassword", async (req, res) => {
       { email: email },
       { $set: { motDePasse: hashedPassword } }
     );
-    console.log(newUser);
+    //console.log(newUser);
 
     // Envoyer la réponse
     res.status(200).send("Mot de passe mis à jour.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -182,16 +182,16 @@ app.post("/addfriend", async (req, res) => {
     const proprietaire = req.body.proprietaire;
     const nom = req.body.nom;
     const id = req.body.id;
-    console.log(id);
-    console.log(nom);
-    console.log(proprietaire);
+    //console.log(id);
+    //console.log(nom);
+    //console.log(proprietaire);
 
     const user = await users.findOne({ nom: nom });
 
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
     }
-    console.log(user._id);
+    //console.log(user._id);
 
     const newFriend = await users.updateOne(
       { nom: proprietaire },
@@ -201,10 +201,10 @@ app.post("/addfriend", async (req, res) => {
     if (!newFriend) {
       throw new Error("pas d'amis.");
     }
-    console.log(newFriend);
+    //console.log(newFriend);
     res.status(200).send("Ami ajouté.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -217,7 +217,7 @@ app.get("/friends", async (req, res) => {
     }
     res.json(user.friends);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -227,8 +227,8 @@ app.delete("/delfriends", async (req, res) => {
     const proprietaire = req.query.proprietaire;
     const nom = req.query.nom;
     const user = await users.findOne({ nom: proprietaire });
-    console.log(nom);
-    console.log(proprietaire);
+    //console.log(nom);
+    //console.log(proprietaire);
 
     if (!user) {
       throw new Error("L'utilisateur n'existe pas.");
@@ -245,7 +245,7 @@ app.delete("/delfriends", async (req, res) => {
 
     res.status(200).send("Ami supprimé.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -257,9 +257,9 @@ app.post("/addgame", async (req, res) => {
     const gamePrice = req.body.gamePrice;
     const price = req.body.price;
 
-    console.log(nom);
-    console.log(gameName);
-    console.log(gamePrice);
+    //console.log(nom);
+    //console.log(gameName);
+    //console.log(gamePrice);
 
     const newGame = await games.insertOne({
       gameName: gameName,
@@ -275,10 +275,10 @@ app.post("/addgame", async (req, res) => {
     if (!newGame) {
       throw new Error("La partie n'a pas été ajoutée.");
     }
-    console.log(newGame);
+    //console.log(newGame);
     res.status(200).send("Partie ajoutée.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -293,7 +293,7 @@ app.get("/games", async (req, res) => {
     const games = userWithGames ? userWithGames.games : [];
     res.json(games);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -302,9 +302,9 @@ app.get("/game", async (req, res) => {
   try {
     const result = await games.find().toArray();
     res.json(result);
-    console.log(result);
+    //console.log(result);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -314,9 +314,9 @@ app.get("/startgame", async (req, res) => {
     const gameName = req.query.gameName;
     const result = await games.findOne({ gameName: gameName });
     res.json(result);
-    console.log(result);
+    //console.log(result);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -326,10 +326,10 @@ app.post("/gameNameCheck", async (req, res) => {
     const gameName = req.body.gameName;
     const result = await games.findOne({ gameName: gameName });
     res.json(result);
-    console.log(gameName);
-    console.log("res" + result);
+    //console.log(gameName);
+    //console.log("res" + result);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -339,8 +339,8 @@ app.post("/joinGame", async (req, res) => {
     const nom = req.body.nom;
     const gameName = req.body.gameName;
     const price = req.body.price;
-    console.log(nom);
-    console.log(gameName);
+    //console.log(nom);
+    //console.log(gameName);
 
     const newPlayer = await games.updateOne(
       { gameName: gameName },
@@ -354,10 +354,10 @@ app.post("/joinGame", async (req, res) => {
     if (!newPlayer) {
       throw new Error("Impossible de rejoindre la partie.");
     }
-    console.log(newPlayer);
+    //console.log(newPlayer);
     res.status(200).send("Partie rejointe.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
@@ -365,27 +365,27 @@ app.post("/joinGame", async (req, res) => {
 app.post("/deleteGame", async (req, res) => {
   try {
     const gameName = req.body.gameName;
-    console.log(gameName);
+    //console.log(gameName);
 
     const deleteGame = await games.deleteOne({ gameName: gameName });
 
     if (!deleteGame) {
       throw new Error("Impossible de supprimer la partie.");
     }
-    console.log(deleteGame);
+    //console.log(deleteGame);
     res.status(200).send("Partie supprimée.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
-app.post("/refundGame", async (req, res) => {
+app.post("/refundgame", async (req, res) => {
   try {
     const gameName = req.body.gameName;
     const nom = req.body.nom;
     const price = req.body.price;
-    console.log(gameName);
-    console.log(nom);
+    //console.log(gameName);
+    //console.log(nom);
 
     const deleteGame = await games.deleteOne({ gameName: gameName });
 
@@ -397,14 +397,19 @@ app.post("/refundGame", async (req, res) => {
     if (!deleteGame) {
       throw new Error("Impossible de refund la partie.");
     }
-    console.log(deleteGame);
+
+    if (!newPlayer) {
+      throw new Error("Impossible de refund la partie.");
+    }
+
+    //console.log(deleteGame);
     res.status(200).send("Partie supprimée.");
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server is listening on port ${port}.`);
+  //console.log(`Server is listening on port ${port}.`);
 });
