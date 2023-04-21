@@ -295,7 +295,7 @@ app.get("/games", async (req, res) => {
 
 app.get("/game", async (req, res) => {
   try {
-    const result = await games.find()
+    const result = await games.find().toArray()
     res.json(result);
     console.log(result)
   } catch (err) {
