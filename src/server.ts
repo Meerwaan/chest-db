@@ -310,6 +310,18 @@ app.get("/game", async (req, res) => {
   }
 });
 
+app.get("/startgame", async (req, res) => {
+  try {
+    const gameName = req.query.gameName;
+    const result = await games.findOne({ gameName: gameName });
+    res.json(result);
+    console.log(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
 });
