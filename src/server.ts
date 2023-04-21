@@ -42,6 +42,7 @@ app.post("/adduser", async (req, res) => {
       motDePasse: req.body.motDePasse,
       friends: [],
       games: [],
+      coins: 200,
     };
     const existingUser = await users.findOne({ email: user.email });
     if (existingUser) {
@@ -62,14 +63,6 @@ app.post("/login", async (req, res) => {
   // Extraire les données de la requête
 
   try {
-    const user: User = {
-      nom: req.body.nom,
-      email: req.body.email,
-      motDePasse: req.body.motDePasse,
-      friends: [],
-      games: [],
-    };
-
     console.log(req.body.email);
     console.log(req.body.motDePasse);
     // Rechercher l'utilisateur par email
@@ -339,12 +332,17 @@ app.post("/joinGame", async (req, res) => {
   try {
     const nom = req.body.nom;
     const gameName = req.body.gameName;
+    const price = req.body.price;
     console.log(nom);
     console.log(gameName);
 
     const newPlayer = await games.updateOne(
       { gameName: gameName },
       { $push: { players: nom } }
+    );
+    const user = await users.updateOne(
+      { nom: nom },
+      { $set: { coins: price } }
     );
 
     if (!newPlayer) {
