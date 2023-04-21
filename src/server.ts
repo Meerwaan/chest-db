@@ -322,14 +322,36 @@ app.get("/startgame", async (req, res) => {
   }
 });
 
-
 app.post("/gameNameCheck", async (req, res) => {
   try {
     const gameName = req.body.gameName;
-    const result = await games.findOne({gameName : gameName })
+    const result = await games.findOne({ gameName: gameName });
     res.json(result);
-    console.log(gameName)
-    console.log("res"+result)
+    console.log(gameName);
+    console.log("res" + result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.post("/joinGame", async (req, res) => {
+  try {
+    const nom = req.body.nom;
+    const gameName = req.body.gameName;
+    console.log(nom);
+    console.log(gameName);
+
+    const newPlayer = await games.updateOne(
+      { gameName: gameName },
+      { $push: { players: nom } }
+    );
+
+    if (!newPlayer) {
+      throw new Error("Impossible de rejoindre la partie.");
+    }
+    console.log(newPlayer);
+    res.status(200).send("Partie rejointe.");
   } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
