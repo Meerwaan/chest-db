@@ -379,6 +379,31 @@ app.post("/deleteGame", async (req, res) => {
     res.status(500).send("Erreur serveur.");
   }
 });
+app.post("/refundGame", async (req, res) => {
+  try {
+    const gameName = req.body.gameName;
+    const nom = req.body.nom;
+    const price = req.body.price;
+    console.log(gameName);
+    console.log(nom);
+
+    const deleteGame = await games.deleteOne({ gameName: gameName });
+
+    const newPlayer = await users.updateOne(
+      { nom: nom },
+      { $set: { coins: price } }
+    );
+
+    if (!deleteGame) {
+      throw new Error("Impossible de refund la partie.");
+    }
+    console.log(deleteGame);
+    res.status(200).send("Partie supprimée.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
