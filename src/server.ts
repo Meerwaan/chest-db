@@ -255,6 +255,8 @@ app.post("/addgame", async (req, res) => {
     const nom = req.body.nom;
     const gameName = req.body.gameName;
     const gamePrice = req.body.gamePrice;
+    const price = req.body.price;
+
     console.log(nom);
     console.log(gameName);
     console.log(gamePrice);
@@ -265,6 +267,10 @@ app.post("/addgame", async (req, res) => {
       players: [nom],
       owner: nom,
     });
+    const user = await users.updateOne(
+      { nom: nom },
+      { $set: { coins: price } }
+    );
 
     if (!newGame) {
       throw new Error("La partie n'a pas été ajoutée.");
