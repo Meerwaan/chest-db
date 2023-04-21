@@ -386,6 +386,7 @@ app.post("/refundgame", async (req, res) => {
     const price = req.body.price;
     //console.log(gameName);
     //console.log(nom);
+    console.log(price);
 
     const deleteGame = await games.deleteOne({ gameName: gameName });
 
@@ -404,6 +405,21 @@ app.post("/refundgame", async (req, res) => {
 
     //console.log(deleteGame);
     res.status(200).send("Partie supprimée.");
+  } catch (err) {
+    //console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
+app.get("/getCoins", async (req, res) => {
+  try {
+    const nom = req.query.nom;
+    const userWithCoins = await users.findOne({
+      nom: nom,
+      coins: { $exists: true },
+    });
+    const coins = userWithCoins ? userWithCoins.coins : [];
+    res.json(coins);
   } catch (err) {
     //console.log(err);
     res.status(500).send("Erreur serveur.");
