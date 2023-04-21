@@ -322,6 +322,20 @@ app.get("/startgame", async (req, res) => {
   }
 });
 
+
+app.post("/gameNameCheck", async (req, res) => {
+  try {
+    const gameName = req.body.gameName;
+    const result = await games.findOne({gameName : gameName })
+    res.json(result);
+    console.log(gameName)
+    console.log("res"+result)
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
 });
