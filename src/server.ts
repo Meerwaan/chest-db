@@ -2,16 +2,16 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { MongoClient, Collection, ObjectId } from "mongodb";
-import Config from "dotenv";
 import bcrypt from "bcrypt";
 import User from "./Model/user";
 import nodemailer from "nodemailer";
 import { send } from "process";
 
+
+const config = require("dotenv").config();
 const app = express();
 const port = 3000;
-const uri =
-  "mongodb+srv://fayssal:fayssal@chest-game.ej0g82h.mongodb.net/?retryWrites=true&w=majority";
+const uri = process.env.URI;
 const client = new MongoClient(uri);
 let users: Collection<User>;
 let games;
