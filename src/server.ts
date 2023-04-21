@@ -358,6 +358,24 @@ app.post("/joinGame", async (req, res) => {
   }
 });
 
+app.post("/deleteGame", async (req, res) => {
+  try {
+    const gameName = req.body.gameName;
+    console.log(gameName);
+
+    const deleteGame = await games.deleteOne({ gameName: gameName });
+
+    if (!deleteGame) {
+      throw new Error("Impossible de supprimer la partie.");
+    }
+    console.log(deleteGame);
+    res.status(200).send("Partie supprimée.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Erreur serveur.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
 });
