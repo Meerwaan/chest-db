@@ -1,4 +1,4 @@
-# Mon Projet
+# Chess-Db
 
 Ce projet utilise MongoDB, TypeScript et Mongoose.
 
