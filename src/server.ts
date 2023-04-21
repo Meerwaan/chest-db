@@ -6,6 +6,7 @@ import Config from "dotenv";
 import bcrypt from "bcrypt";
 import User from "./Model/user";
 import nodemailer from "nodemailer";
+import { send } from "process";
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,7 @@ const uri =
   "mongodb+srv://fayssal:fayssal@chest-game.ej0g82h.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 let users: Collection<User>;
-let games
+let games;
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -66,7 +67,7 @@ app.post("/login", async (req, res) => {
       email: req.body.email,
       motDePasse: req.body.motDePasse,
       friends: [],
-      games: []
+      games: [],
     };
 
     console.log(req.body.email);
@@ -137,6 +138,10 @@ app.post("/forgotPassword", async (req, res) => {
 
     // Preview only available when sending through an Ethereal account
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    let answer = nodemailer.getTestMessageUrl(info);
+    console.log(answer);
+
+    res.json(answer);
   } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
@@ -261,14 +266,12 @@ app.post("/addgame", async (req, res) => {
     console.log(gameName);
     console.log(gamePrice);
 
-
     const newGame = await games.insertOne({
       gameName: gameName,
       price: gamePrice,
       players: [nom],
-      owner: nom
-    }
-    );
+      owner: nom,
+    });
 
     if (!newGame) {
       throw new Error("La partie n'a pas été ajoutée.");
@@ -284,7 +287,10 @@ app.post("/addgame", async (req, res) => {
 app.get("/games", async (req, res) => {
   try {
     const nom = req.query.nom;
-    const userWithGames = await users.findOne({ nom: nom, games: { $exists: true } });
+    const userWithGames = await users.findOne({
+      nom: nom,
+      games: { $exists: true },
+    });
     const games = userWithGames ? userWithGames.games : [];
     res.json(games);
   } catch (err) {
@@ -295,19 +301,14 @@ app.get("/games", async (req, res) => {
 
 app.get("/game", async (req, res) => {
   try {
-    const result = await games.find().toArray()
+    const result = await games.find().toArray();
     res.json(result);
-    console.log(result)
+    console.log(result);
   } catch (err) {
     console.log(err);
     res.status(500).send("Erreur serveur.");
   }
 });
-
-
-
-
-
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}.`);
